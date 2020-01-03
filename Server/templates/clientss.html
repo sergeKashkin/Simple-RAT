@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block title %}
+    Clients
+{% endblock %}
+
+
+{% block main %}
+	<div class="alert alert-success" role="alert">
+        	<h4 class="alert-heading">Online Clients</h4>
+        	<p>A list of all online clients available for interaction.</p>
+    	</div>
+    {% for key in range(0,len,2) %}
+        <div class="row">
+            {% for k in range(key,key+2) %}
+                {% if k < len %}
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <form action="/clientMenu" method="post">
+                                    <h5 class="card-title">{{con_info[keys[k]]["user"]}} on {{con_info[keys[k]]["os"]}}</h5>
+                                    <p class="card-text">From {{con_info[keys[k]]["location"]}}</p>
+                                    <input type="text" name="client" readonly class="form-control-plaintext" value={{con_list[keys[k]][1][0]}}:{{con_list[keys[k]][1][1]}}>
+                                    <button type="submit" class="btn btn-primary mb-2">Client Menu</button>
+                                </form>
+                        </div>
+                    </div>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <hr class="my-4">
+    {% endfor %}
+
+{% endblock %}

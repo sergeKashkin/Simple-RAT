@@ -1,0 +1,46 @@
+									<!-- keylogs-for-clientMenu.html -->
+<!-- args: user_logs, client -->
+<!-- user_logs structure 
+
+    user_logs:{
+    
+        day1:{
+            logloglog
+        }
+        day2:{
+            log2log2log2
+        }
+        dayn:{
+            lognlognlogn
+        }
+    
+    
+    }
+
+-->
+<div class="accordion" id="keylogs-accordion">
+   {% for day in user_logs.keys() %}
+        <div class="card">
+            <div class="card-header" id="heading{{ day }}">
+                <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#{{ day }}" data-tooltip="tooltip" data-placement="right" title="Click To Expand" aria-expanded="true" aria-controls="">
+                       {{ day }} 
+                    </button>
+                </h2>
+            </div>
+
+            <div id="{{ day }}" class="collapse" aria-labelledby="heading{{ day }}" data-parent="#keylogs-accordion">
+                <div class="card-body">
+                   <!-- pass the text through filter disabling auto-escaping -->
+                    {{ user_logs[day] | safe }}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+<script>
+
+    //init. Tooltips
+    $('[data-tooltip="tooltip"]').tooltip()
+   
+</script>

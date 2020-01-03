@@ -1,0 +1,37 @@
+														<!-- offline_clients.html -->
+<!-- args:offline_clients -->
+{% extends "layout.html" %}
+{% block title %}
+    Offline Clients
+{% endblock %}
+
+{% block main %}
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading">Offline Clients</h4>
+            <p>A list of all offline clients.</p>
+    </div>
+    <hr class="my-4">
+    {% for key in range(0,len,2) %}
+        <div class="row">
+            {% for k in range(key,key+2) %}
+                {% if k < len %}
+                    <div class="col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <form action="/offline_client_menu" method="post">
+                                    <h5 class="card-title">{{offline[k]["user_name"]}} on {{offline[k]["os"]}}</h5>
+                                    <p class="card-text">From {{offline[k]["location"]}}</p>
+                                    <input type="text" name="user_name" style="visibility:hidden;" readonly class="form-control-plaintext" value='{{offline[k]["user_name"]}}'>
+                                    <input type="text" name="location" style="visibility:hidden;" readonly class="form-control-plaintext" value='{{offline[k]["location"]}}'>
+                                    <button type="submit" class="btn btn-primary mb-2">Client Menu</button>
+                                </form>
+                        </div>
+                    </div>
+                        </form>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <hr class="my-4">
+    {% endfor %}
+{% endblock %}

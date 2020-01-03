@@ -1,0 +1,95 @@
+<hr class="my-4">
+<h5 id="curDir">{{ curDir }}</h5>
+<hr class="my-4">
+<div class="list-group" id="dirList">
+    <div class="row">
+        <div class="col" id="dirList-dirs">
+            {% if curDir.count('\\') > 1 %}
+            <button type="button" id="go-back" data-tooltip="tooltip" title="Click To Go Back"class="list-group-item list-group-item-action"><i class="fas fa-level-up-alt"></i> ...</button>
+            {% endif %}
+            {% for k in dirList['dirs'] %}
+            <button type="button" id="{{ k }}" data-tooltip="tooltip" title="Click To Open Directory" class="list-group-item list-group-item-action"> {{ k }} </button>
+            {% endfor %}
+        </div>
+        <div class="col" id="dirList-files">
+            {% for k in dirList['files'].keys() %}
+            <button type="button" id="{{ curDir }}{{ k }}" data-tooltip="tooltip" title="Click To Upload To FTP" class="list-group-item list-group-item-action">Name: {{ k }} Size: {{ dirList['files'][k] }}MB </button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#dirList-dirs button').click(function() {
+        var path;
+        if (this.id == 'go-back') {
+            path = $('#curDir').text().split('\\').slice(0, -2).join('\\');
+        } else {
+            path = $('#curDir').text() + this.id;
+        }
+
+        console.log(path);
+        var data = JSON.stringify({
+            client: "{{ client }}",
+            path: path
+        });
+
+        $.ajax({
+
+                type: "POST",
+                url: "{{ url_for('dirList') }}",
+                data: data,
+                contentType: 'application/json;charset=UTF-8',
+                beforeSend: function(){
+                    
+                    //makes the screen flick, optional to use ??
+                    //$('#list-files-hdd').html('<i class="fas fa-spinner fa-spin"></i>');
+                
+                }
+
+            })
+            .done(function(msg) {
+                console.log(msg);
+                $('#list-files-hdd').html(msg);
+            })
+    });
+
+    $('#dirList-files button').click(function() {
+        var clicked = this;
+        var origText = $(clicked).html();
+        var data = JSON.stringify({
+            client: "{{ client }}",
+            cmd: "get_file",
+            path: clicked.id,
+        });
+
+        $.ajax({
+
+                type: "POST",
+                url: "{{ url_for('actions') }}",
+                data: data,
+                contentType: 'application/json;charset=UTF-8',
+                beforeSend: function() {
+                        
+                    $(clicked).append('<i class="fas fa-spinner fa-spin"></i>');
+                    
+                }
+                
+            })
+            .done(function(msg) {
+                console.log(msg);
+                
+                console.log(origText);
+                $(clicked).addClass("list-group-item-primary");
+                console.log($(clicked).attr('class'));
+                $(clicked).html(msg);
+                setTimeout(function(){
+                    $(clicked).removeClass("list-group-item-primary");
+                    $(clicked).html(origText);
+                },1000);
+                //alert("#" + path);
+            })
+    });
+    //init. Tooltips
+    $('[data-tooltip="tooltip"]').tooltip()
+
+</script>

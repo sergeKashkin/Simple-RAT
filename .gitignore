@@ -1,0 +1,6 @@
+server/app_data.db
+server/certificate.pem
+server/key.pem
+server/readme.txt
+server/__pycache__
+client/__pycache__

@@ -1,0 +1,104 @@
+													<!-- screens-for-clientMenu-ajax-list.html -->
+<!-- args:screens_list, per_page, pages, path, client, folder -->
+<nav aria-label="Page navigation example">
+
+    <ul class="pagination justify-content-center" id="controls">
+        <li class="page-item"><a class="page-link" href="#" aria-label="Previous">«</a></li>
+        
+            {% for i in range(1,pages+1) %}
+            
+                <li class="page-item"><a class="page-link" href="#">{{ i }}</a></li>
+            
+            {% endfor %}
+        
+        <li class="page-item"><a class="page-link" href="#" aria-label="Next">»</a></li>
+    </ul>
+</nav>
+
+<div class="pagination-container">
+    {% set ns = namespace() %}
+    {% for i in range(0,screens_list|length,per_page) %}
+       {% set ns.i = loop.index %}
+        <div data-page={{ loop.index }} style="display:none;">
+            <div class="row">  
+
+          {% set ns.cur = (ns.i - 1) * per_page %}
+        <div class="col-sm"></div>
+
+          <div class="col">
+          <div class="btn-group-vertical">
+          {% for x in range(ns.cur, ns.cur + per_page//2) %}
+              {% if x < screens_list|length %}
+                  <button type="button" class="btn btn-primary" data-toggle="modal" data-tooltip="tooltip" data-placement="left" title="Click To Open Screenshot" data-target="#screensModalCenter">{{ screens_list[x] }}</button>
+              {% endif %}
+          {% endfor %}
+          </div>
+          </div>
+           
+            
+          <div class="col">
+          <div class="btn-group-vertical">
+          {% for x in range(ns.cur + per_page//2, ns.cur+ per_page) %}
+              {% if x < screens_list|length %}
+                  <button type="button" class="btn btn-primary" data-toggle="modal" data-tooltip="tooltip" data-placement="right" title="Click To Open Screenshot" data-target="#screensModalCenter">{{ screens_list[x] }}</button>
+              {% endif %}
+          {% endfor %}
+            </div>
+        </div>
+                <div class="col-sm"></div>
+
+        </div>
+      </div>   
+   {% endfor %}
+    
+</div>
+<script>
+
+    var paginationHandler = function(){
+        
+        var $paginationContainer = $(".pagination-container"),
+            $pagination = $("#controls");
+        $pagination.find("li a").on('click', function(e){
+            e.preventDefault();
+            // get parent li's data-page attr and cur. page
+            var parentLiPage = $(this).text(),
+            currentPage = parseInt( $(".pagination-container div[data-page]:visible").data("page") ),
+            numPages = $paginationContainer.find("div[data-page]").length;
+            console.log(parentLiPage,currentPage,numPages);
+            // make sure they aren't clicking cur. page
+            if( parseInt(parentLiPage) !== parseInt(currentPage) ) 
+            // hide cur. page
+            $paginationContainer.find("div[data-page]:visible").hide();
+            if( parentLiPage === "»" ){
+                //next page
+                $paginationContainer.find("div[data-page=" + ( currentPage+1>numPages ? numPages : currentPage+1 ) + "]").show();
+            } else if (parentLiPage === "«" ){
+                //prev. page
+                $paginationContainer.find("div[data-page="+( currentPage-1<1 ? 1 : currentPage-1 ) + "]").show();   
+            } else {
+                //specific page
+                $paginationContainer.find("div[data-page="+parseInt(parentLiPage) +"]").show();
+            }
+        });
+    };
+    $(document).ready(() => {
+       $('.pagination-container').find('div').first().show(); 
+    });
+    
+    $(document).ready(paginationHandler);
+    
+    $('.pagination-container button').click( (e) => {
+        
+        var file_name = "{{ client }}\\" + "screens" + "\\" + "{{ folder }}" + "\\" + $(e.target).text();
+        console.log(file_name);
+        var image_url = "/screens/" + file_name;
+        console.log(image_url);
+        var image = $('<img>');
+        image.attr('src', image_url);
+        image.attr('class','img-fluid');
+        $('#screensModalCenterBody').html( image );
+    });
+    //init. Tooltips
+    $('[data-tooltip="tooltip"]').tooltip()
+
+</script>

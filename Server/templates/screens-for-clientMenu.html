@@ -1,0 +1,74 @@
+											<!-- screens-for-clientMenu.html -->
+<!-- args:user_files,path,client -->
+ 
+ <!-- Modal to load images into it-->
+<div class="modal fade" id="screensModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="screensModalCenterBody">
+      
+      </div>
+    </div>
+  </div>
+</div>
+ 
+ 
+ 
+ 
+ 
+ <!-- accordion with user's screens -->
+
+ <div class="accordion" id="accordionScreens">
+ {% for f in user_files %}
+  <div class="card">
+    <div class="card-header" id="heading{{ f }}">
+      <h2 class="mb-0">
+        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{ f }}" data-tooltip="tooltip" data-placement="right" title="Click To Expand" aria-expanded="true" aria-controls="collapse{{ f }}">{{ f }}</button>
+      </h2>
+    </div>
+
+    <div id="collapse{{ f }}" class="collapse" aria-labelledby="heading{{ f }}" data-parent="#accordionScreens">
+      <div class="card-body">
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+<script>
+
+    $('#accordionScreens button').click( function(){
+        //clear all divs inside accordions in order the func. to work properly
+        $('.collapse div').html('');
+        console.log('{{ path }}');
+        console.log($(this).text());
+        var name = $(this).text();
+        var path = "{{ path }}\\" + name;
+        console.log(path);
+        var data = JSON.stringify({
+            path: path,
+            client: "{{ client }}",
+            folder: $(this).text(),
+        });
+        $.ajax({
+            type: "POST",
+            url: "{{ url_for('screens_by_day') }}",
+            data: data,
+            contentType: 'application/json;charset=UTF-8',
+            
+        })
+        .done(function(msg){
+            // insert ajax answer to clicked accordion contents
+            $( document.getElementById('collapse'+name) ).find( "div" ).html(msg);
+            
+        });
+    });
+    
+    //init. Tooltips
+    $('[data-tooltip="tooltip"]').tooltip()
+
+</script>

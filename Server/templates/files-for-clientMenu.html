@@ -1,0 +1,50 @@
+<!-- args: user_files,path, client -->
+
+
+<div class="list-group">
+    {% for f in user_files %}
+                
+        <button type="button" id="{{ f }}" data-tooltip="tooltip"  title="Click To Download" class="list-group-item list-group-item-action">{{ f }}</button>
+    
+    {% endfor %}
+</div>
+
+<script>
+$('#list-files button').click(function(){
+   //make ajax req. to download page, which will use flask's send_from_directory()
+   
+    var fname = this.id;
+    
+    var data = JSON.stringify({
+        client: "{{ client }}",
+        type: "files",
+        name: fname,
+    });
+    //console.log(data);
+    
+    $.ajax({
+       
+        type: "POST",
+        xhrFields:{
+            responseType: 'blob'
+        },
+        url: "{{ url_for('download') }}",
+        data: data,
+        contentType: "application/json;charset=UTF-8",
+        success: function(data){
+            var a = document.createElement('a');
+            var url = window.URL.createObjectURL(data);
+            a.href = url;
+            a.download = fname;
+            document.body.append(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+    }
+       
+   })
+});
+    //init. Tooltips
+    $('[data-tooltip="tooltip"]').tooltip()
+
+</script>
